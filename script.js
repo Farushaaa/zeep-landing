@@ -67,44 +67,15 @@ function setupStoreLinks(referralCode) {
 
 function tryOpenApp(referralCode) {
     return new Promise(function(resolve) {
-        const startTime = Date.now();
-        const timeout = 3000; // Increased timeout for better detection
+        const timeout = 3000;
         let appOpened = false;
 
-        // Create detection mechanisms
-        const beforeUnload = function() {
-            appOpened = true;
-            resolve(true);
-        };
+        // Skip universal link, go straight to custom scheme
+        const customScheme = `zeep://referral/${referralCode}`;
+        window.location.href = customScheme;
 
-        const visibilityChange = function() {
-            if (document.hidden) {
-                appOpened = true;
-                resolve(true);
-            }
-        };
-
-        // Add event listeners
-        window.addEventListener('beforeunload', beforeUnload);
-        document.addEventListener('visibilitychange', visibilityChange);
-
-        // Try universal link first (works better on newer devices)
-        const universalLink = ` https://farushaaa.github.io/zeep-landing//referral/${referralCode}`;
-        window.location.href = universalLink;
-
-        // Fallback to custom scheme after delay
+        // Rest of your detection logic...
         setTimeout(function() {
-            if (!appOpened && document.visibilityState === 'visible') {
-                const customScheme = `zeep://referral/${referralCode}`;
-                window.location.href = customScheme;
-            }
-        }, 1000);
-
-        // Final check after timeout
-        setTimeout(function() {
-            window.removeEventListener('beforeunload', beforeUnload);
-            document.removeEventListener('visibilitychange', visibilityChange);
-
             if (!appOpened) {
                 resolve(false);
             }
