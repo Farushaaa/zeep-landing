@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Zeep - You've been invited!</title>
+    <title>Opening Zeep...</title>
 
     <!-- iOS Smart App Banner -->
     <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID">
@@ -13,7 +13,143 @@
     <meta property="og:description" content="Your friend invited you to join Zeep. Download the app now!">
     <meta property="og:image" content="https://zeepapp.com/share-image.png">
 
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1F893D 0%, #2DA85A 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 auto 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .status-message {
+            margin: 30px 0;
+        }
+
+        .loading {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #statusText {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #noAppMessage {
+            margin-top: 30px;
+        }
+
+        #noAppMessage h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .app-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .app-link {
+            display: block;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .app-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 40px;
+            opacity: 0.7;
+            font-size: 14px;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .logo {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -31,17 +167,15 @@
     </div>
 
     <div id="noAppMessage" class="hidden">
-        <h2>App Not Found</h2>
-        <p class="subtitle">It looks like you don't have the Zeep app installed yet. Please install it first to use this referral link!</p>
+        <h2>Get the Zeep App!</h2>
+        <p class="subtitle">Download Zeep to accept this invitation and start earning rewards!</p>
 
         <div class="app-icons">
             <a href="#" id="iosLink" class="app-link">
-                <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83"
-                     alt="Download on the App Store">
+                📱 Download for iPhone
             </a>
             <a href="#" id="androidLink" class="app-link">
-                <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
-                     alt="Get it on Google Play">
+                🤖 Download for Android
             </a>
         </div>
     </div>
@@ -51,7 +185,7 @@
     </div>
 </div>
 
-<!-- Move script to bottom -->
+<!-- Load script at the end for better performance -->
 <script src="script.js"></script>
 </body>
 </html>
