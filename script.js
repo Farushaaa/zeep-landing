@@ -1,19 +1,8 @@
+// Simplified script - only handles query parameters
 // Extract referral code from URL
 function getReferralCode() {
-    // First check if we have a query parameter from GitHub Pages redirect
     const urlParams = new URLSearchParams(window.location.search);
-    const redirectedPath = urlParams.get('p');
-
-    if (redirectedPath) {
-        // Parse the redirected path: referral/ABC123
-        const match = redirectedPath.match(/referral\/([^\/\?]+)/);
-        return match ? match[1] : null;
-    }
-
-    // Fallback to checking pathname directly
-    const path = window.location.pathname;
-    const match = path.match(/\/referral\/([^\/\?]+)/);
-    return match ? match[1] : null;
+    return urlParams.get('ref');
 }
 
 // Detect platform
@@ -25,18 +14,22 @@ function isAndroid() {
     return /Android/.test(navigator.userAgent);
 }
 
-// Initialize the page - Auto redirect for app users
+// Initialize the page
 function init() {
     const referralCode = getReferralCode();
 
     if (!referralCode) {
-        window.location.href = 'https://zeepapp.com';
+        // Redirect to main website if no referral code
+        setTimeout(() => {
+            window.location.href = 'https://zeepapp.com';
+        }, 2000);
+        document.getElementById('statusText').textContent = 'No referral code found. Redirecting...';
         return;
     }
 
-    console.log('Referral code:', referralCode);
+    console.log('Referral code found:', referralCode);
 
-    // Set up store links (in case we need them)
+    // Set up store links
     setupStoreLinks(referralCode);
 
     // Auto-attempt to open app
@@ -57,12 +50,13 @@ function autoRedirectToApp(referralCode) {
     tryOpenApp(referralCode).then(function(appOpened) {
         if (appOpened) {
             statusText.textContent = 'Redirecting to app...';
-            // App opened successfully - we're done!
         } else {
-            // App not installed - show message
-            loadingSpinner.style.display = 'none';
-            statusText.style.display = 'none';
-            noAppMessage.classList.remove('hidden');
+            // App not installed - show download options after delay
+            setTimeout(() => {
+                loadingSpinner.style.display = 'none';
+                statusText.style.display = 'none';
+                noAppMessage.classList.remove('hidden');
+            }, 1500);
         }
     });
 }
@@ -71,74 +65,108 @@ function setupStoreLinks(referralCode) {
     const iosLink = document.getElementById('iosLink');
     const androidLink = document.getElementById('androidLink');
 
-    // Replace with your actual app store URLs
-    iosLink.href = `https://apps.apple.com/app/zeep/id123456789?pt=${referralCode}`;
-    androidLink.href = `https://play.google.com/store/apps/details?id=com.diarcode.zeepmobile&referrer=utm_source%3Dreferral%26utm_content%3D${referralCode}`;
+    iosLink.href = `https://apps.apple.com/app/zeep/id123456789?pt=${referralCode}&ct=referral`;
+    androidLink.href = `https://play.google.com/store/apps/details?id=com.diarcode.zeepmobile&referrer=utm_source%3Dreferral%26utm_medium%3Dlink%26utm_campaign%3D${referralCode}`;
 }
 
 function tryOpenApp(referralCode) {
     return new Promise(function(resolve) {
-        const startTime = Date.now();
-        const timeout = 3000; // Increased timeout for better detection
         let appOpened = false;
+        let resolved = false;
+        const timeout = 2500;
 
-        // Create detection mechanisms
-        const beforeUnload = function() {
-            appOpened = true;
-            resolve(true);
+        function resolveOnce(opened) {
+            if (!resolved) {
+                resolved = true;
+                resolve(opened);
+            }
+        }
+
+        // Detection mechanisms
+        const handleVisibilityChange = function() {
+            if (document.hidden || document.visibilityState === 'hidden') {
+                appOpened = true;
+                resolveOnce(true);
+            }
         };
 
-        const visibilityChange = function() {
-            if (document.hidden) {
-                appOpened = true;
-                resolve(true);
-            }
+        const handlePageHide = function() {
+            appOpened = true;
+            resolveOnce(true);
+        };
+
+        const handleBlur = function() {
+            appOpened = true;
+            resolveOnce(true);
         };
 
         // Add event listeners
-        window.addEventListener('beforeunload', beforeUnload);
-        document.addEventListener('visibilitychange', visibilityChange);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('pagehide', handlePageHide);
+        window.addEventListener('blur', handleBlur);
 
-        // Try universal link first (works better on newer devices)
-        const universalLink = `https://zeepapp.com/referral/${referralCode}`;
-        window.location.href = universalLink;
+        // Cleanup function
+        function cleanup() {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('pagehide', handlePageHide);
+            window.removeEventListener('blur', handleBlur);
+        }
 
-        // Fallback to custom scheme after delay
-        setTimeout(function() {
-            if (!appOpened && document.visibilityState === 'visible') {
-                const customScheme = `zeep://referral/${referralCode}`;
-                window.location.href = customScheme;
+        // Try different methods based on platform
+        if (isIOS()) {
+            // For iOS, try universal link first
+            const universalLink = `https://farushaaa.github.io/zeep-landing/?ref=${referralCode}`;
+            window.location.href = universalLink;
+
+            // Fallback to custom scheme after short delay
+            setTimeout(() => {
+                if (!appOpened && document.visibilityState === 'visible') {
+                    window.location.href = `zeep://referral/${referralCode}`;
+                }
+            }, 800);
+
+        } else if (isAndroid()) {
+            // For Android, try intent first
+            const intent = `intent://referral/${referralCode}#Intent;scheme=zeep;package=com.diarcode.zeepmobile;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.diarcode.zeepmobile;end`;
+
+            try {
+                window.location.href = intent;
+            } catch (e) {
+                // Fallback to custom scheme
+                window.location.href = `zeep://referral/${referralCode}`;
             }
-        }, 1000);
 
-        // Final check after timeout
-        setTimeout(function() {
-            window.removeEventListener('beforeunload', beforeUnload);
-            document.removeEventListener('visibilitychange', visibilityChange);
+        } else {
+            // Desktop - just resolve to show download options
+            setTimeout(() => resolveOnce(false), 1000);
+        }
 
+        // Final timeout check
+        setTimeout(() => {
+            cleanup();
             if (!appOpened) {
-                resolve(false);
+                resolveOnce(false);
             }
         }, timeout);
     });
 }
 
 function trackReferralVisit(referralCode) {
-    // Track the referral visit to your analytics
-    // You can use Google Analytics, Mixpanel, or your own API
+    const trackingData = {
+        referralCode: referralCode,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        source: 'landing_page',
+        platform: isIOS() ? 'ios' : isAndroid() ? 'android' : 'web',
+        url: window.location.href
+    };
 
-    // Example with a simple API call:
-    fetch(`https://api.zeepapp.com/track-referral`, {
+    fetch('https://api.zeepapp.com/track-referral', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            referralCode: referralCode,
-            userAgent: navigator.userAgent,
-            timestamp: new Date().toISOString(),
-            source: 'landing_page'
-        })
+        body: JSON.stringify(trackingData)
     }).catch(function(error) {
         console.log('Analytics tracking failed:', error);
     });
@@ -146,3 +174,8 @@ function trackReferralVisit(referralCode) {
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', init);
+
+// Also initialize immediately if DOM is already loaded
+if (document.readyState !== 'loading') {
+    init();
+}

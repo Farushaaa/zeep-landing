@@ -1,32 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Redirecting...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeep Referral - Redirecting...</title>
     <script>
-        // GitHub Pages SPA redirect hack
-        // This script takes the current pathname and redirects to index.html
-        // with the path as a query parameter that can be parsed by JavaScript
+        // GitHub Pages SPA redirect script
+        // This handles client-side routing for single-page applications
+        (function() {
+            var redirect = sessionStorage.redirect;
+            delete sessionStorage.redirect;
+            if (redirect && redirect !== location.href) {
+                // Extract the referral code from various URL formats
+                var referralCode = null;
 
-        var pathSegments = location.pathname.slice(1).split('/');
+                // Try to extract from path: /zeep-landing/referral/ABC123
+                var pathMatch = redirect.match(/\/referral\/([^\/\?]+)/);
+                if (pathMatch) {
+                    referralCode = pathMatch[1];
+                }
 
-        // Remove the repository name from the path (zeep-landing)
-        if (pathSegments[0] === 'zeep-landing') {
-            pathSegments.shift();
-        }
-
-        // Redirect to index.html with the path as a parameter
-        location.replace(
-            location.protocol + '//' + location.hostname +
-            (location.port ? ':' + location.port : '') +
-            '/zeep-landing/' +
-            (pathSegments.length ? '?p=' + pathSegments.join('/') : '') +
-            (location.search ? '&' + location.search.slice(1) : '') +
-            location.hash
-        );
+                // Redirect to index.html with referral code as query parameter
+                if (referralCode) {
+                    location.replace(location.origin + location.pathname.replace(/\/[^\/]*$/, '/') + '?ref=' + referralCode);
+                } else {
+                    // Fallback: redirect to index
+                    location.replace(location.origin + location.pathname.replace(/\/[^\/]*$/, '/'));
+                }
+            }
+        })();
     </script>
 </head>
 <body>
-<p>Redirecting...</p>
+<div style="text-align: center; padding: 50px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <div style="display: inline-block; width: 50px; height: 50px; border: 3px solid #1F893D; border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    <p style="margin-top: 20px; color: #666;">Redirecting to Zeep...</p>
+</div>
+
+<style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Fallback redirect if the above doesn't work
+    setTimeout(function() {
+        window.location.href = './';
+    }, 3000);
+</script>
 </body>
 </html>
