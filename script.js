@@ -89,7 +89,7 @@ function tryOpenApp(referralCode) {
         document.addEventListener('visibilitychange', visibilityChange);
 
         // Try universal link first (works better on newer devices)
-        const universalLink = `https://zeepapp.com/referral/${referralCode}`;
+        const universalLink = ` https://farushaaa.github.io/zeep-landing//referral/${referralCode}`;
         window.location.href = universalLink;
 
         // Fallback to custom scheme after delay
