@@ -1,0 +1,126 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #1F893D 0%, #16a085 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.container {
+    max-width: 400px;
+    width: 100%;
+}
+
+.logo {
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 30px;
+    margin: 0 auto 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: #1F893D;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.subtitle {
+    font-size: 18px;
+    margin-bottom: 40px;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+.status-message {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+#noAppMessage {
+    animation: fadeIn 0.5s ease-in;
+}
+
+#noAppMessage h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #ffeb3b;
+}
+
+.app-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.app-link {
+    display: block;
+}
+
+.app-link img {
+    height: 48px;
+    width: auto;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.app-link:hover img {
+    transform: scale(1.05);
+}
+
+.footer {
+    margin-top: 40px;
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.hidden {
+    display: none;
+}
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+    .status-message {
+        padding: 0 10px;
+    }
+}

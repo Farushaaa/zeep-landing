@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Zeep - You've been invited!</title>
+
+    <!-- iOS Smart App Banner -->
+    <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID">
+
+    <!-- Social sharing meta tags -->
+    <meta property="og:title" content="You've been invited to join Zeep!">
+    <meta property="og:description" content="Your friend invited you to join Zeep. Download the app now!">
+    <meta property="og:image" content="https://zeepapp.com/share-image.png">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="logo">Z</div>
+
+    <h1>You've been invited!</h1>
+    <p class="subtitle">
+        Your friend invited you to join <strong>Zeep</strong>.
+        <br>Get the app and claim your invite!
+    </p>
+
+    <div class="status-message">
+        <div id="loadingSpinner" class="loading"></div>
+        <p id="statusText">Checking if you have the Zeep app...</p>
+    </div>
+
+    <div id="noAppMessage" class="hidden">
+        <h2>App Not Found</h2>
+        <p class="subtitle">It looks like you don't have the Zeep app installed yet. Please install it first to use this referral link!</p>
+
+        <div class="app-icons">
+            <a href="#" id="iosLink" class="app-link">
+                <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83"
+                     alt="Download on the App Store">
+            </a>
+            <a href="#" id="androidLink" class="app-link">
+                <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                     alt="Get it on Google Play">
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Free to download • Available worldwide</p>
+    </div>
+</div>
+
+</body>
+</html>
