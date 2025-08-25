@@ -1,5 +1,16 @@
 // Extract referral code from URL
 function getReferralCode() {
+    // First check if we have a query parameter from GitHub Pages redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectedPath = urlParams.get('p');
+
+    if (redirectedPath) {
+        // Parse the redirected path: referral/ABC123
+        const match = redirectedPath.match(/referral\/([^\/\?]+)/);
+        return match ? match[1] : null;
+    }
+
+    // Fallback to checking pathname directly
     const path = window.location.pathname;
     const match = path.match(/\/referral\/([^\/\?]+)/);
     return match ? match[1] : null;

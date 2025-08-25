@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+        // GitHub Pages SPA redirect hack
+        // This script takes the current pathname and redirects to index.html
+        // with the path as a query parameter that can be parsed by JavaScript
+
+        var pathSegments = location.pathname.slice(1).split('/');
+
+        // Remove the repository name from the path (zeep-landing)
+        if (pathSegments[0] === 'zeep-landing') {
+            pathSegments.shift();
+        }
+
+        // Redirect to index.html with the path as a parameter
+        location.replace(
+            location.protocol + '//' + location.hostname +
+            (location.port ? ':' + location.port : '') +
+            '/zeep-landing/' +
+            (pathSegments.length ? '?p=' + pathSegments.join('/') : '') +
+            (location.search ? '&' + location.search.slice(1) : '') +
+            location.hash
+        );
+    </script>
+</head>
+<body>
+<p>Redirecting...</p>
+</body>
+</html>
