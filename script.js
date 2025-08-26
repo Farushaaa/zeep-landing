@@ -1,4 +1,4 @@
-// Enhanced referral landing script with Expo Go support
+// Fixed referral landing script - corrected Expo Go approach
 function getReferralCode() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('ref');
@@ -20,9 +20,8 @@ function isMobile() {
 
 // 🆕 Development mode detection
 function isDevelopmentMode() {
-    // You can control this via URL parameter or always true during development
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('dev') === 'true' || window.location.hostname.includes('github.io');
+    return urlParams.get('dev') !== 'false' && window.location.hostname.includes('github.io');
 }
 
 function init() {
@@ -31,6 +30,12 @@ function init() {
     console.log('🔍 User Agent:', navigator.userAgent);
     console.log('📱 Is Mobile:', isMobile());
     console.log('🚧 Development Mode:', isDevelopmentMode());
+
+    // Show development mode indicator
+    if (isDevelopmentMode()) {
+        document.getElementById('devIndicator')?.classList.remove('hidden');
+        document.getElementById('devInfo')?.classList.remove('hidden');
+    }
 
     const referralCode = getReferralCode();
 
@@ -58,16 +63,15 @@ function attemptAppOpen(referralCode) {
     console.log('📱 Attempting to open app...');
 
     const statusText = document.getElementById('statusText');
-    const loadingSpinner = document.getElementById('loadingSpinner');
 
     // Update status based on development mode
     if (isDevelopmentMode()) {
-        statusText.textContent = 'Opening Expo Go...';
+        statusText.textContent = 'Opening app in Expo Go...';
     } else {
         statusText.textContent = 'Opening Zeep app...';
     }
 
-    const DETECTION_TIMEOUT = 2500; // Slightly longer for Expo Go
+    const DETECTION_TIMEOUT = 3000; // 3 seconds
     let appOpened = false;
     let timeoutId;
 
@@ -76,16 +80,34 @@ function attemptAppOpen(referralCode) {
             console.log('✅ App opened successfully');
             appOpened = true;
             clearTimeout(timeoutId);
-            statusText.textContent = isDevelopmentMode() ? 'Opening in Expo Go...' : 'Opening app...';
+            statusText.textContent = 'Opening app...';
         }
     }
 
-    // Detection method
-    document.addEventListener('visibilitychange', () => {
+    // Enhanced detection methods
+    const handleVisibilityChange = () => {
         if (document.hidden) {
             onAppOpen();
         }
-    });
+    };
+
+    const handlePageHide = () => {
+        onAppOpen();
+    };
+
+    const handleBlur = () => {
+        // Small delay to avoid false positives
+        setTimeout(() => {
+            if (document.hidden) {
+                onAppOpen();
+            }
+        }, 100);
+    };
+
+    // Add multiple detection methods
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
+    window.addEventListener('blur', handleBlur);
 
     // Try to open the app
     tryOpenApp(referralCode);
@@ -96,78 +118,45 @@ function attemptAppOpen(referralCode) {
             console.log('⏰ App detection timeout - showing download options');
             showDownloadOptions();
         }
+
+        // Cleanup listeners
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('pagehide', handlePageHide);
+        window.removeEventListener('blur', handleBlur);
     }, DETECTION_TIMEOUT);
 }
 
 function tryOpenApp(referralCode) {
     console.log('🎯 Trying to open app with code:', referralCode);
 
-    if (isDevelopmentMode()) {
-        // 🆕 Development mode: Open via Expo Go
-        console.log('🚧 Development mode - opening via Expo Go');
-        tryOpenExpoGo(referralCode);
-    } else {
-        // Production mode: Use custom scheme
-        tryOpenProductionApp(referralCode);
-    }
-}
+    // 🔧 FIXED: Use your custom scheme in both dev and production
+    // In development, Expo Go will handle your custom scheme automatically
+    const appUrl = `zeep://referral/${referralCode}`;
 
-function tryOpenExpoGo(referralCode) {
-    // Your Expo project URL - replace with your actual project details
-    const EXPO_PROJECT_ID = '8fb828ae-8f7e-44a8-aa5f-0947e91a6b99'; // From your app.json
-    const EXPO_PROJECT_SLUG = 'zeep'; // From your app.json
+    console.log('🔗 Opening URL:', appUrl);
 
     if (isIOS()) {
-        console.log('🍎 iOS + Expo Go');
-
-        // Method 1: Try Expo Go universal link with deep link
-        const expoUniversalLink = `https://expo.dev/--/to-exp/exp://exp.host/@${getExpoUsername()}/${EXPO_PROJECT_SLUG}?referralCode=${referralCode}`;
-
-        // Method 2: Direct Expo Go scheme
-        const expoSchemeUrl = `exp://exp.host/@${getExpoUsername()}/${EXPO_PROJECT_SLUG}?referralCode=${referralCode}`;
-
-        // Try universal link first
-        window.location.href = expoUniversalLink;
-
-        // Fallback to scheme after delay
-        setTimeout(() => {
-            window.location.href = expoSchemeUrl;
-        }, 1000);
-
+        console.log('🍎 iOS - trying custom scheme');
+        window.location.href = appUrl;
     } else if (isAndroid()) {
-        console.log('🤖 Android + Expo Go');
+        console.log('🤖 Android - trying intent first, then scheme');
 
-        // For Android, we can try the intent URL for Expo Go
-        const expoIntent = `intent://exp.host/@${getExpoUsername()}/${EXPO_PROJECT_SLUG}?referralCode=${referralCode}#Intent;scheme=exp;package=host.exp.exponent;end`;
-
-        try {
-            window.location.href = expoIntent;
-        } catch (e) {
-            console.log('⚠️ Expo intent failed, trying scheme');
-            window.location.href = `exp://exp.host/@${getExpoUsername()}/${EXPO_PROJECT_SLUG}?referralCode=${referralCode}`;
-        }
-    }
-}
-
-function getExpoUsername() {
-    // 🚨 Replace this with your actual Expo username
-    // You can find this in your Expo account or by running `expo whoami`
-    return 'faradev'; // ⚠️ UPDATE THIS
-}
-
-function tryOpenProductionApp(referralCode) {
-    if (isIOS()) {
-        console.log('🍎 iOS Production - trying custom scheme');
-        window.location.href = `zeep://referral/${referralCode}`;
-    } else if (isAndroid()) {
-        console.log('🤖 Android Production - trying intent');
-        const intentUrl = `intent://referral/${referralCode}#Intent;scheme=zeep;package=com.diarcode.zeepmobile;end`;
+        // Try Android intent first (more reliable)
+        const intentUrl = `intent://referral/${referralCode}#Intent;scheme=zeep;package=host.exp.exponent;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end`;
 
         try {
             window.location.href = intentUrl;
+
+            // Fallback to custom scheme after short delay
+            setTimeout(() => {
+                if (!document.hidden) {
+                    console.log('🔄 Intent fallback - trying custom scheme');
+                    window.location.href = appUrl;
+                }
+            }, 500);
         } catch (e) {
-            console.log('⚠️ Intent failed, trying custom scheme');
-            window.location.href = `zeep://referral/${referralCode}`;
+            console.log('⚠️ Intent failed, trying custom scheme directly');
+            window.location.href = appUrl;
         }
     }
 }
@@ -192,9 +181,8 @@ function showError(message) {
     if (loadingSpinner) loadingSpinner.style.display = 'none';
 
     setTimeout(() => {
-        // Redirect to your main website or Expo project page
         window.location.href = isDevelopmentMode()
-            ? `https://expo.dev/@${getExpoUsername()}/zeep`
+            ? 'https://expo.dev'
             : 'https://zeepapp.com';
     }, 3000);
 }
@@ -202,9 +190,23 @@ function showError(message) {
 function setupStoreLinks(referralCode) {
     const iosLink = document.getElementById('iosLink');
     const androidLink = document.getElementById('androidLink');
+    const downloadTitle = document.getElementById('downloadTitle');
+    const downloadSubtitle = document.getElementById('downloadSubtitle');
+    const footerText = document.getElementById('footerText');
 
     if (isDevelopmentMode()) {
-        // 🆕 Development mode: Link to Expo Go
+        // 🆕 Development mode: Link to Expo Go + Instructions
+        if (downloadTitle) downloadTitle.textContent = 'Get Expo Go to test!';
+        if (downloadSubtitle) {
+            downloadSubtitle.innerHTML = `
+                Download Expo Go, then:<br>
+                1. Open Expo Go<br>
+                2. Scan the QR code from your development server<br>
+                3. The referral link will work in your app!
+            `;
+        }
+        if (footerText) footerText.textContent = 'Development mode • Requires Expo Go';
+
         if (iosLink) {
             iosLink.href = 'https://apps.apple.com/app/expo-go/id982107779';
             iosLink.textContent = '📱 Get Expo Go for iPhone';
@@ -245,27 +247,31 @@ function trackReferralVisit(referralCode) {
         developmentMode: isDevelopmentMode()
     };
 
-    // 🆕 Only track if you have a real API endpoint
-    const trackingEndpoint = 'https://api.zeepapp.com/track-referral';
-
-    // Simple tracking with error handling
-    fetch(trackingEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(trackingData)
-    }).catch((error) => {
-        console.log('📊 Tracking failed (this is expected in development):', error.message);
-
-        // 🆕 For development, log to console or localStorage
-        if (isDevelopmentMode()) {
-            console.log('📊 Development tracking data:', trackingData);
+    // Development mode: just log and store locally
+    if (isDevelopmentMode()) {
+        console.log('📊 Development tracking data:', trackingData);
+        try {
             localStorage.setItem('zeep_referral_debug', JSON.stringify(trackingData));
+            localStorage.setItem('zeep_last_referral_time', Date.now().toString());
+        } catch (e) {
+            console.log('📊 Could not save to localStorage');
         }
-    });
+    } else {
+        // Production tracking
+        const trackingEndpoint = 'https://api.zeepapp.com/track-referral';
+
+        fetch(trackingEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(trackingData)
+        }).catch((error) => {
+            console.log('📊 Tracking failed:', error.message);
+        });
+    }
 }
 
-// 🆕 Enhanced test button for development
-function addTestButton() {
+// 🆕 Enhanced test buttons for development
+function addTestButtons() {
     if (!isDevelopmentMode()) return;
 
     setTimeout(() => {
@@ -278,64 +284,106 @@ function addTestButton() {
                 right: 20px;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
                 z-index: 1000;
+            `;
+
+            const buttonStyles = `
+                padding: 8px 12px;
+                background: rgba(31, 137, 61, 0.9);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 12px;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+                white-space: nowrap;
+                min-width: 120px;
             `;
 
             // Skip detection button
             const skipButton = document.createElement('button');
             skipButton.textContent = '🧪 Skip Detection';
-            skipButton.style.cssText = getButtonStyles();
+            skipButton.style.cssText = buttonStyles;
             skipButton.onclick = () => {
                 console.log('🧪 Manual override triggered');
                 showDownloadOptions();
             };
 
-            // Force Expo Go button
-            const expoButton = document.createElement('button');
-            expoButton.textContent = '🚀 Force Expo Go';
-            expoButton.style.cssText = getButtonStyles();
-            expoButton.onclick = () => {
-                console.log('🚀 Force Expo Go triggered');
+            // Test custom scheme button
+            const testSchemeButton = document.createElement('button');
+            testSchemeButton.textContent = '🚀 Test App Link';
+            testSchemeButton.style.cssText = buttonStyles;
+            testSchemeButton.onclick = () => {
+                console.log('🚀 Testing custom scheme');
                 const referralCode = getReferralCode();
                 if (referralCode) {
-                    tryOpenExpoGo(referralCode);
+                    const testUrl = `zeep://referral/${referralCode}`;
+                    console.log('🔗 Testing URL:', testUrl);
+                    window.location.href = testUrl;
+                }
+            };
+
+            // Debug info button
+            const debugButton = document.createElement('button');
+            debugButton.textContent = '🐛 Debug Info';
+            debugButton.style.cssText = buttonStyles;
+            debugButton.onclick = () => {
+                const debug = localStorage.getItem('zeep_referral_debug');
+                const lastTime = localStorage.getItem('zeep_last_referral_time');
+
+                let info = 'Debug Info:\n\n';
+                if (debug) {
+                    info += JSON.stringify(JSON.parse(debug), null, 2);
+                } else {
+                    info += 'No debug info available';
+                }
+
+                if (lastTime) {
+                    const time = new Date(parseInt(lastTime));
+                    info += '\n\nLast visit: ' + time.toLocaleString();
+                }
+
+                alert(info);
+            };
+
+            // Copy scheme URL button
+            const copyButton = document.createElement('button');
+            copyButton.textContent = '📋 Copy Test URL';
+            copyButton.style.cssText = buttonStyles;
+            copyButton.onclick = () => {
+                const referralCode = getReferralCode();
+                if (referralCode) {
+                    const testUrl = `zeep://referral/${referralCode}`;
+                    navigator.clipboard.writeText(testUrl).then(() => {
+                        alert('URL copied to clipboard:\n' + testUrl);
+                    }).catch(() => {
+                        prompt('Copy this URL:', testUrl);
+                    });
                 }
             };
 
             buttonContainer.appendChild(skipButton);
-            buttonContainer.appendChild(expoButton);
+            buttonContainer.appendChild(testSchemeButton);
+            buttonContainer.appendChild(debugButton);
+            buttonContainer.appendChild(copyButton);
             document.body.appendChild(buttonContainer);
         }
     }, 3000);
-}
-
-function getButtonStyles() {
-    return `
-        padding: 8px 12px;
-        background: rgba(31, 137, 61, 0.9);
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 12px;
-        cursor: pointer;
-        backdrop-filter: blur(10px);
-        white-space: nowrap;
-    `;
 }
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     console.log('📄 DOM loaded, initializing...');
     init();
-    addTestButton();
+    addTestButtons();
 });
 
 // Also run immediately if DOM is already ready
 if (document.readyState !== 'loading') {
     console.log('📄 DOM already ready, initializing...');
     init();
-    addTestButton();
+    addTestButtons();
 }
 
 // Add a fallback initialization after 1 second
