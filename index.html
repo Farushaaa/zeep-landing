@@ -3,23 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Zeep - Referral Invitation</title>
+    <title>Opening Zeep...</title>
 
-    <!-- iOS Smart App Banner (disabled for now since app isn't published) -->
-    <!-- <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID"> -->
+    <!-- iOS Smart App Banner -->
+    <meta name="apple-itunes-app" content="app-id=YOUR_APP_ID">
 
     <!-- Social sharing meta tags -->
     <meta property="og:title" content="You've been invited to join Zeep!">
-    <meta property="og:description" content="Your friend invited you to join Zeep. Download the app now and start earning rewards!">
-    <meta property="og:image" content="https://farushaaa.github.io/zeep-landing/share-image.png">
-    <meta property="og:url" content="https://farushaaa.github.io/zeep-landing/">
-    <meta property="og:type" content="website">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="You've been invited to join Zeep!">
-    <meta name="twitter:description" content="Your friend invited you to join Zeep. Download the app now!">
-    <meta name="twitter:image" content="https://farushaaa.github.io/zeep-landing/share-image.png">
+    <meta property="og:description" content="Your friend invited you to join Zeep. Download the app now!">
+    <meta property="og:image" content="https://zeepapp.com/share-image.png">
 
     <style>
         * {
@@ -141,41 +133,6 @@
             font-size: 14px;
         }
 
-        /* Development mode indicator */
-        .dev-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 193, 7, 0.9);
-            color: #000;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            backdrop-filter: blur(10px);
-        }
-
-        .dev-info {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            backdrop-filter: blur(10px);
-        }
-
-        .dev-info h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #FFD700;
-        }
-
-        .dev-info p {
-            font-size: 14px;
-            line-height: 1.5;
-            opacity: 0.9;
-        }
-
         /* Mobile optimizations */
         @media (max-width: 480px) {
             .container {
@@ -191,22 +148,10 @@
                 height: 60px;
                 font-size: 28px;
             }
-
-            .dev-indicator {
-                top: 10px;
-                right: 10px;
-                font-size: 10px;
-                padding: 6px 8px;
-            }
         }
     </style>
 </head>
 <body>
-<!-- Development mode indicator -->
-<div id="devIndicator" class="dev-indicator hidden">
-    🚧 DEV MODE
-</div>
-
 <div class="container">
     <div class="logo">Z</div>
 
@@ -216,20 +161,14 @@
         <br>Get the app and claim your invite!
     </p>
 
-    <!-- Development mode info -->
-    <div id="devInfo" class="dev-info hidden">
-        <h3>🚧 Development Mode</h3>
-        <p>This app is in development. You'll need <strong>Expo Go</strong> to test the referral link.</p>
-    </div>
-
     <div class="status-message">
         <div id="loadingSpinner" class="loading"></div>
         <p id="statusText">Checking if you have the Zeep app...</p>
     </div>
 
     <div id="noAppMessage" class="hidden">
-        <h2 id="downloadTitle">Get the Zeep App!</h2>
-        <p class="subtitle" id="downloadSubtitle">Download Zeep to accept this invitation and start earning rewards!</p>
+        <h2>Get the Zeep App!</h2>
+        <p class="subtitle">Download Zeep to accept this invitation and start earning rewards!</p>
 
         <div class="app-icons">
             <a href="#" id="iosLink" class="app-link">
@@ -242,11 +181,11 @@
     </div>
 
     <div class="footer">
-        <p id="footerText">Free to download • Available worldwide</p>
+        <p>Free to download • Available worldwide</p>
     </div>
 </div>
 
-<!-- Load the enhanced script -->
+<!-- Load script at the end for better performance -->
 <script src="script.js"></script>
 </body>
 </html>
